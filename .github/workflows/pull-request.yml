@@ -1,0 +1,45 @@
+name: Pull Request Workflow on Develop
+
+on:
+  push:
+    branches: [develop] # Trigger on push to develop
+  pull_request:
+    branches: [develop] # Trigger on pull requests to develop
+
+jobs:
+  # 1. Lint, Test, and Build Job
+  run-lint:
+    name: Lint, Test, and Build Next.js App
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18] # Use Node.js LTS version (adjust if needed)
+
+    steps:
+      # Step 1: Checkout code
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Step 2: Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm' # Cache npm dependencies
+
+      # Step 3: Install Dependencies with Cache
+      - name: Install Dependencies
+        run: npm ci
+
+      # Step 4: Lint Code
+      - name: Run ESLint
+        run: npm run lint
+
+      # Step 5: Run Unit Tests
+      - name: Run Unit Tests
+        run: npm run test:ci
+
+      # Step 6: Build Next.js App
+      - name: Build Next.js App
+        run: npm run build
