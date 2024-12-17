@@ -7,9 +7,8 @@ on:
     branches: [develop] # Trigger on pull requests to develop
 
 jobs:
-  # 1. Lint, Test, and Build Job
   run-lint:
-    name: Lint, Test, and Build Next.js App
+    name: Pull Request Workflow on Develop
     runs-on: ubuntu-latest
 
     strategy:
