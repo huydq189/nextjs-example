@@ -4,7 +4,6 @@ on:
   pull_request:
     branches:
       - develop
-      - main
 
 jobs:
   # Job 1: Linting
@@ -29,3 +28,5 @@ jobs:
     uses: ./.github/workflows/sonar-scan.yml
     with:
       node-version: '18.x'
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
