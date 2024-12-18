@@ -1,0 +1,25 @@
+name: SonarCloud Scan Workflow
+
+on:
+  workflow_call: # Makes this workflow reusable
+    inputs:
+      node-version:
+        required: true
+        type: string
+    secrets:
+      SONAR_TOKEN:
+        required: true
+
+jobs:
+   sonarqube:
+    name: SonarQube
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v4
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
