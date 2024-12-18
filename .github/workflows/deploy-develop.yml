@@ -1,0 +1,17 @@
+name: Deploy Development Manually
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/cd.yml
+    with:
+      env_tag: development
+      environment: Development
+    secrets:
+      DOCKER_IMAGE_REPOSITORY: ${{ secrets.DOCKER_IMAGE_REPOSITORY }}
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      GCP_STORAGE_KEY: ${{ secrets.GCP_STORAGE_KEY }}
+      PA_TOKEN: ${{ secrets.PA_TOKEN }}
