@@ -4,10 +4,7 @@ on:
   pull_request:
     branches:
       - develop
-
-strategy:
-  matrix:
-    node-version: ['18.x', '20.x']
+      - main
 
 jobs:
   # Job 1: Linting
@@ -15,7 +12,7 @@ jobs:
     name: Run Linting
     uses: ./.github/workflows/lint.yml
     with:
-      node-version: ${{ matrix.node-version }}
+        node-version: '18.x'
 
   # Job 2: Unit Tests
   unit-test:
@@ -23,7 +20,7 @@ jobs:
     needs: lint # Linting must pass first
     uses: ./.github/workflows/unit-test.yml
     with:
-      node-version: ${{ matrix.node-version }}
+        node-version: '18.x'
 
   # Job 3: SonarCloud Scan
   sonar-scan:
@@ -31,6 +28,4 @@ jobs:
     needs: unit-test # Tests must pass first
     uses: ./.github/workflows/sonar-scan.yml
     with:
-      node-version: ${{ matrix.node-version }}
-      sonar-token: ${{ secrets.SONAR_TOKEN }}
-      project-key: ${{ secrets.SONAR_PROJECT_KEY }}
+      node-version: '18.x'
