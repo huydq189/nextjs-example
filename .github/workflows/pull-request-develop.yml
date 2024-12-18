@@ -30,4 +30,3 @@ jobs:
       node-version: '18.x'
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
