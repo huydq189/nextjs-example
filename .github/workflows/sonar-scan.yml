@@ -1,20 +1,35 @@
-name: Scan Sonar
+name: SonarCloud Scan Workflow
+
 on:
-  push:
-    branches:
-      - develop
-  pull_request:
-    types: [opened, synchronize, reopened]
+  workflow_call: # Makes this workflow reusable
+    inputs:
+      node-version:
+        required: true
+        type: string
+
 jobs:
-  sonarqube:
-    name: SonarQube
+  sonar-scan:
+    name: SonarCloud Analysis
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+      # Step 1: Checkout code
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Step 2: Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v4
+          node-version: ${{ inputs.node-version }}
+
+      # Step 3: Install dependencies
+      - name: Install Dependencies
+        run: npm ci
+
+      # Step 4: Run SonarCloud Analysis
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v4
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR-TOKEN: ${{ secrets.SONAR-TOKEN }}
+          SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
