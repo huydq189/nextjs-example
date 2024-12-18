@@ -29,4 +29,4 @@ jobs:
 
       # Step 4: Run Tests with Coverage
       - name: Run Unit Tests
-        run: npm test -- --coverage
+        run: npm test:ci -- --coverage
