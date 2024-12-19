@@ -2,6 +2,11 @@ name: Continuous Delivery Flow
 
 on:
   workflow_call:
+    secrets:
+      GOOGLE_APPLICATION_CREDENTIALS:
+        required: true
+      GOOGLE_PROJECT:
+        required: true
 
 jobs:
   build-and-push:
