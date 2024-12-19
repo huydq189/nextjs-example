@@ -16,7 +16,7 @@ jobs:
   # Job 2: Unit Tests
   unit-test:
     name: Run Unit Tests
-    needs: lint # Linting must pass first
+    needs: lint
     uses: ./.github/workflows/unit-test.yml
     with:
         node-version: '18.x'
@@ -24,7 +24,7 @@ jobs:
   # Job 3: SonarCloud Scan
   sonar-scan:
     name: Run SonarCloud Scan
-    needs: unit-test # Tests must pass first
+    needs: unit-test
     uses: ./.github/workflows/sonar-scan.yml
     with:
       node-version: '18.x'
@@ -33,6 +33,16 @@ jobs:
 
   # Job 4: Build
   build:
-    name: Build
-    needs: sonar-scan # SonarCloud scan must pass first
+    name: Build Workflow
+    needs: sonar-scan
     uses: ./.github/workflows/build.yml
+
+  # Job 5: Push Docker Image
+  deployment:
+    name: Push Docker Image to GCR
+    needs: build # Build must pass first
+    uses: ./.github/workflows/cd.yml
+    with:
+      env_tag: development
+      environment: Development
+
