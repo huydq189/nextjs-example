@@ -2,66 +2,34 @@ name: Continuous Delivery Flow
 
 on:
   workflow_call:
-    inputs:
-      env_tag:
-        required: true
-        type: string
-      environment:
-        required: true
-        type: string
     secrets:
-      DOCKER_IMAGE_REPOSITORY:
+      GOOGLE_APPLICATION_CREDENTIALS:
         required: true
-      DOCKER_USERNAME:
-        required: true
-      DOCKER_PASSWORD:
-        required: true
-      GCP_STORAGE_KEY:
+      GOOGLE_PROJECT:
         required: true
 
 jobs:
-  deploy:
-    name: Deploy to ${{ inputs.environment }} manually
+  build-and-push:
     runs-on: ubuntu-latest
-    container: google/cloud-sdk:latest
-    environment: ${{ inputs.environment }}
-
     steps:
-      - uses: actions/checkout@v3
-      - name: Push image to ${{ inputs.environment }} container registry
-        run: |
-          echo $GCP_STORAGE_KEY | base64 --decode > ./key.json
-          export IMAGE_NAME=asia.gcr.io/$DOCKER_IMAGE_REPOSITORY/$ENV_TAG/$REPOSITORY_NAME:$GITHUB_SHA
-          docker build -t $IMAGE_NAME --build-arg ENV_TAG=$ENV_TAG .
-          docker login -u $DOCKER_USERNAME -p "$DOCKER_PASSWORD" https://asia.gcr.io
-          docker push $IMAGE_NAME
-        env:
-          # REPOSITORY_NAME:
-          ENV_TAG: ${{ inputs.env_tag }}
-          DOCKER_IMAGE_REPOSITORY: ${{ secrets.DOCKER_IMAGE_REPOSITORY }}
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-          GCP_STORAGE_KEY: ${{ secrets.GCP_STORAGE_KEY }}
-      # - name: Trigger Update Gitops
-      #   uses: actions/github-script@v6
-      #   with:
-      #     github-token: ${{ secrets.PA_TOKEN }}
-      #     script: |
-      #       const commit = await github.rest.repos.getCommit({
-      #         owner: context.repo.owner,
-      #         repo: context.repo.repo,
-      #         ref: `${{github.sha}}`
-      #       });
 
-      #       await github.rest.actions.createWorkflowDispatch({
-      #         owner: '',
-      #         repo: '',
-      #         workflow_id: 'deploy.yaml',
-      #         ref: 'main',
-      #         inputs: {
-      #           repository: '',
-      #           image: `asia.gcr.io/${{secrets.DOCKER_IMAGE_REPOSITORY}}/${{ inputs.env_tag }}/:${{github.sha}}`,
-      #           env: '${{ inputs.env_tag }}',
-      #           message: `${commit.data.commit.message.slice(0,200)}" -m "on ${{ github.event.ref }}" -m "by ${{ github.event.sender.login }}`,
-      #         },
-      #       });
+    - name: code checkout
+      uses: actions/checkout@v4
+
+    - id: 'auth'
+      uses: 'google-github-actions/auth@v2'
+      with:
+        project_id: ${{ secrets.GOOGLE_PROJECT }}
+        credentials_json: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+
+
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v2'
+
+    - name: build and push the docker image
+      env:
+        GOOGLE_PROJECT: ${{ secrets.GOOGLE_PROJECT }}
+      run: |
+        gcloud auth configure-docker asia-east1-docker.pkg.dev
+        docker build -t asia-east1-docker.pkg.dev/$GOOGLE_PROJECT/gcf-artifacts/nextjs-example:latest .
+        docker push asia-east1-docker.pkg.dev/$GOOGLE_PROJECT/gcf-artifacts/nextjs-example:latest
