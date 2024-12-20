@@ -1,0 +1,35 @@
+name: Continuous Delivery Flow
+
+on:
+  workflow_call:
+    secrets:
+      GOOGLE_APPLICATION_CREDENTIALS:
+        required: true
+      GOOGLE_PROJECT:
+        required: true
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: code checkout
+      uses: actions/checkout@v4
+
+    - id: 'auth'
+      uses: 'google-github-actions/auth@v2'
+      with:
+        project_id: ${{ secrets.GOOGLE_PROJECT }}
+        credentials_json: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+
+
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v2'
+
+    - name: build and push the docker image
+      env:
+        GOOGLE_PROJECT: ${{ secrets.GOOGLE_PROJECT }}
+      run: |
+        gcloud auth configure-docker asia-east1-docker.pkg.dev
+        docker build -t asia-east1-docker.pkg.dev/$GOOGLE_PROJECT/gcf-artifacts/nextjs-example:latest .
+        docker push asia-east1-docker.pkg.dev/$GOOGLE_PROJECT/gcf-artifacts/nextjs-example:latest
