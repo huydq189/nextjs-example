@@ -1,0 +1,13 @@
+name: Deploy Development Manually
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/cd.yml
+    with:
+      env_tag: dev
+      environment: Development
+      secrets: inherit
+
