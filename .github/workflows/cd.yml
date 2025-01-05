@@ -2,12 +2,13 @@ name: Continuous Delivery Flow
 
 on:
   workflow_call:
-    env_tag:
-      required: true
-      type: string
-    environment:
-      required: true
-      type: string
+    inputs:
+      env_tag:
+        required: true
+        type: string
+      environment:
+        required: true
+        type: string
     secrets:
       GOOGLE_APPLICATION_CREDENTIALS:
         required: true
