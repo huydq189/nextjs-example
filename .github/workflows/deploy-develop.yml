@@ -1,0 +1,17 @@
+name: Deploy Development Manually
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches: [develop]
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/cd.yml
+    with:
+      env_tag: dev
+      environment: Development
+    secrets: inherit
