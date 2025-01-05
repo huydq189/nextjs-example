@@ -9,5 +9,4 @@ jobs:
     with:
       env_tag: dev
       environment: Development
-      secrets: inherit
-
+    secrets: inherit
