@@ -5,6 +5,9 @@ on:
     env_tag:
       required: true
       type: string
+    environment:
+      required: true
+      type: string
     secrets:
       GOOGLE_APPLICATION_CREDENTIALS:
         required: true
