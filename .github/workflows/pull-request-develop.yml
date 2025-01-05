@@ -42,4 +42,7 @@ jobs:
     name: Push Docker Image to GCR
     needs: build # Build must pass first
     uses: ./.github/workflows/cd.yml
+    with:
+      env_tag: dev
+      environment: Development
     secrets: inherit
