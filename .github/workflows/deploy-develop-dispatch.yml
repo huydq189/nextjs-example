@@ -9,6 +9,5 @@ jobs:
     with:
       env_tag: dev
       environment: Development
-    secrets:
-      PA_TOKEN: ${{ secrets.PA_TOKEN }}
+      secrets: inherit
 
