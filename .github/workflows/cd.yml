@@ -34,8 +34,7 @@ jobs:
 
       - name: build and push the docker image
         env:
-          GOOGLE_PROJECT: ${{ secrets.GOOGLE_PROJECT }}
-          IMAGE_NAME: asia-east1-docker.pkg.dev/$GOOGLE_PROJECT/gcf-artifacts/${{ inputs.env_tag }}/nextjs-example:${{ github.sha }}
+          IMAGE_NAME: asia-east1-docker.pkg.dev/${{ secrets.GOOGLE_PROJECT }}/gcf-artifacts/${{ inputs.env_tag }}/nextjs-example:${{ github.sha }}
         run: |
           gcloud auth configure-docker asia-east1-docker.pkg.dev
           docker build -t $IMAGE_NAME .
