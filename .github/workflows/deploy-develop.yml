@@ -10,9 +10,5 @@ jobs:
       env_tag: dev
       environment: Development
     secrets:
-      DOCKER_IMAGE_REPOSITORY: ${{ secrets.DOCKER_IMAGE_REPOSITORY }}
-      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      GCP_STORAGE_KEY: ${{ secrets.GCP_STORAGE_KEY }}
       PA_TOKEN: ${{ secrets.PA_TOKEN }}
 

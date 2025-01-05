@@ -5,9 +5,6 @@ on:
     env_tag:
       required: true
       type: string
-    environment:
-      required: true
-      type: string
     secrets:
       GOOGLE_APPLICATION_CREDENTIALS:
         required: true
@@ -15,7 +12,8 @@ on:
         required: true
 
 jobs:
-  build-and-push:
+  deploy:
+    name: Deploy to ${{ inputs.environment }} manually
     runs-on: ubuntu-latest
     steps:
       - name: code checkout
@@ -33,8 +31,33 @@ jobs:
       - name: build and push the docker image
         env:
           GOOGLE_PROJECT: ${{ secrets.GOOGLE_PROJECT }}
+          IMAGE_NAME: asia-east1-docker.pkg.dev/$GOOGLE_PROJECT/gcf-artifacts/${{ inputs.env_tag }}/nextjs-example:${{ github.sha }}
         run: |
           gcloud auth configure-docker asia-east1-docker.pkg.dev
-          docker build -t asia-east1-docker.pkg.dev/$GOOGLE_PROJECT/gcf-artifacts/nextjs-example:latest .
-          docker push asia-east1-docker.pkg.dev/$GOOGLE_PROJECT/gcf-artifacts/nextjs-example:latest
+          docker build -t $IMAGE_NAME .
+          docker push $IMAGE_NAME
+
+      - name: Trigger Update Gitops
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PA_TOKEN }}
+          script: |
+            const commit = await github.rest.repos.getCommit({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `${{github.sha}}`
+            });
+
+            await github.rest.actions.createWorkflowDispatch({
+              owner: 'huydq189',
+              repo: 'example-gitops',
+              workflow_id: 'deploy.yaml',
+              ref: 'main',
+              inputs: {
+                repository: 'nextjs-example',
+                image: '${{ env.IMAGE_NAME }}',
+                env: '${{ inputs.env_tag }}',
+                message: `${commit.data.commit.message.slice(0,200)}" -m "on ${{ github.event.ref }}" -m "by ${{ github.event.sender.login }}`,
+              },
+            });
 
